@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kunjue Valentine 💖</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: pink;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  h1 {
+    font-size: 30px;
+    margin-bottom: 30px;
+  }
+  button {
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  #yes {
+    background: red;
+    color: white;
+    z-index: 10;
+  }
+  #no {
+    background: gray;
+    color: white;
+    position: absolute;
+    z-index: 10;
+  }
+  #celebration {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>Kunjue, will you be my Valentine? 💘</h1>
+
+<button id="yes" onclick="yesClicked()">Yes 💖</button>
+<button id="no" onmouseover="moveNo()">No 😏</button>
+
+<!-- Fireworks container -->
+<canvas id="celebration"></canvas>
+
+<script>
+// Move No button randomly
+function moveNo() {
+  const no = document.getElementById("no");
+  const x = Math.random() * (window.innerWidth - no.offsetWidth);
+  const y = Math.random() * (window.innerHeight - no.offsetHeight);
+  no.style.left = x + "px";
+  no.style.top = y + "px";
+}
+
+// Yes clicked
+function yesClicked() {
+  document.body.innerHTML = `
+    <h1>YAY KUNJUE 💕🥰</h1>
+    <img src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" alt="funny baby" style="width:300px;height:auto;">
+    <canvas id="celebration"></canvas>
+  `;
+  launchFireworks();
+}
+
+// Fireworks animation
+function launchFireworks() {
+  const canvas = document.getElementById('celebration');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const fireworks = [];
+  const particles = [];
+
+  function random(min, max) { return Math.random()*(max-min)+min; }
+
+  class Firework {
+    constructor() {
+      this.x = random(0, canvas.width);
+      this.y = canvas.height;
+      this.targetY = random(50, canvas.height/2);
+      this.speed = random(3,6);
+      this.particleCount = 30;
+      this.color = `hsl(${random(0,360)}, 100%, 50%)`;
+      this.exploded = false;
+    }
+    update() {
+      if(this.y > this.targetY) {
+        this.y -= this.speed;
+      } else if(!this.exploded) {
+        for(let i=0;i<this.particleCount;i++) {
+          particles.push(new Particle(this.x,this.y,this.color));
+        }
+        this.exploded = true;
+      }
+    }
+    draw() {
+      if(!this.exploded){
+        ctx.beginPath();
+        ctx.arc(this.x,this.y,3,0,Math.PI*2);
+        ctx.fillStyle=this.color;
+        ctx.fill();
+      }
+    }
+  }
+
+  class Particle {
+    constructor(x,y,color) {
+      this.x = x;
+      this.y = y;
+      this.color = color;
+      this.alpha = 1;
+      this.speedX = random(-5,5);
+      this.speedY = random(-5,5);
+    }
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      this.alpha -= 0.02;
+    }
+    draw() {
+      ctx.globalAlpha = this.alpha;
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,3,0,Math.PI*2);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function animate() {
+    ctx.fillStyle='rgba(0,0,0,0.1)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(Math.random()<0.05) fireworks.push(new Firework());
+    fireworks.forEach((f,i)=>{ f.update(); f.draw(); if(f.exploded) fireworks.splice(i,1); });
+    particles.forEach((p,i)=>{ p.update(); p.draw(); if(p.alpha<=0) particles.splice(i,1); });
+    requestAnimationFrame(animate);
+  }
+  animate();
+}
+</script>
+
+</body>
+</html>
